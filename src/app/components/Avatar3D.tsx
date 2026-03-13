@@ -325,7 +325,7 @@ function Loader() {
   return (
     <div
       className="flex flex-col items-center justify-center"
-      style={{ width: 560, height: 680, gap: 12 }}
+      style={{ width: "100%", height: "100%", gap: 12 }}
     >
       <div
         className="pulse-dot rounded-full"
@@ -363,7 +363,7 @@ export default function Avatar3D({ isSpeaking }: { isSpeaking: boolean }) {
   return (
     <AvatarErrorBoundary fallback={<FallbackOrb isSpeaking={isSpeaking} />}>
       <Suspense fallback={<Loader />}>
-        <div style={{ width: 560, height: 680, borderRadius: 28, overflow: "hidden" }}>
+        <div style={{ width: "100%", height: "100%", borderRadius: 28, overflow: "hidden" }}>
           <Canvas
             camera={{ position: [0, 0.22, 0.95], fov: 26 }}
             gl={{ alpha: true, antialias: true }}
@@ -373,7 +373,7 @@ export default function Avatar3D({ isSpeaking }: { isSpeaking: boolean }) {
               gl.toneMappingExposure = 1.15;
               gl.outputColorSpace = THREE.SRGBColorSpace;
             }}
-            style={{ background: "transparent" }}
+            style={{ background: "transparent", width: "100%", height: "100%" }}
           >
             <ambientLight intensity={0.7} />
             <directionalLight position={[2, 3, 3]} intensity={1.0} />

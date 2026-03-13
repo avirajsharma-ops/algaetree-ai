@@ -121,13 +121,16 @@ export default function TalkPage() {
       </motion.nav>
 
       {/* ── Main: 3-column layout ── */}
-      <div className="relative z-10 flex-1 flex items-center justify-between" style={{ padding: "0 56px" }}>
+      <div
+        className="relative z-10 flex items-center justify-between"
+        style={{ flex: 1, minHeight: 0, padding: "0 clamp(16px, 3vw, 56px)" }}
+      >
         {/* Ambient glow */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div
             className="rounded-full blur-3xl transition-all duration-1000"
             style={{
-              width: 420, height: 420,
+              width: "30vw", height: "30vw", maxWidth: 420, maxHeight: 420,
               background: isSpeaking
                 ? "radial-gradient(circle, rgba(34,197,94,0.15), transparent 70%)"
                 : "radial-gradient(circle, rgba(34,197,94,0.06), transparent 70%)",
@@ -138,7 +141,7 @@ export default function TalkPage() {
         {/* ── LEFT INFO PANEL ── */}
         <motion.div
           className="relative flex flex-col"
-          style={{ width: 240, gap: 14 }}
+          style={{ width: "clamp(160px, 17vw, 240px)", gap: "clamp(6px, 1.2vh, 14px)", flexShrink: 0 }}
           initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3, duration: 0.5 }}
@@ -152,26 +155,36 @@ export default function TalkPage() {
             <motion.div
               key={item.label}
               className="card"
-              style={{ padding: "16px 18px" }}
+              style={{ padding: "clamp(10px, 1.4vh, 16px) clamp(12px, 1.2vw, 18px)" }}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.4 + i * 0.08 }}
             >
-              <div className="flex items-center" style={{ gap: 10, marginBottom: 8 }}>
-                <span style={{ fontSize: 18 }}>{item.icon}</span>
-                <span className="font-bold" style={{ fontSize: 13, color: "var(--text-2)" }}>{item.label}</span>
+              <div className="flex items-center" style={{ gap: 8, marginBottom: "clamp(4px, 0.6vh, 8px)" }}>
+                <span style={{ fontSize: "clamp(14px, 1.4vw, 18px)" }}>{item.icon}</span>
+                <span className="font-bold" style={{ fontSize: "clamp(11px, 1vw, 13px)", color: "var(--text-2)" }}>{item.label}</span>
               </div>
-              <p className="font-extrabold" style={{ fontSize: 22, color: "#4ade80" }}>{item.value}</p>
-              <p style={{ fontSize: 11, color: "var(--text-3)", marginTop: 4, lineHeight: 1.4 }}>{item.sub}</p>
+              <p className="font-extrabold" style={{ fontSize: "clamp(16px, 1.8vw, 22px)", color: "#4ade80" }}>{item.value}</p>
+              <p style={{ fontSize: "clamp(9px, 0.85vw, 11px)", color: "var(--text-3)", marginTop: "clamp(2px, 0.4vh, 4px)", lineHeight: 1.4 }}>{item.sub}</p>
             </motion.div>
           ))}
         </motion.div>
 
         {/* ── CENTER: Avatar + controls ── */}
-        <div className="relative flex flex-col items-center" style={{ gap: 24 }}>
+        <div
+          className="relative flex flex-col items-center"
+          style={{ flex: 1, minWidth: 0, minHeight: 0, gap: "clamp(8px, 1.2vh, 20px)", padding: "0 clamp(8px, 1.5vw, 24px)" }}
+        >
+          {/* Avatar container — fluid sizing */}
           <div
             onClick={conversationStarted ? undefined : startConversation}
             className={conversationStarted ? "" : "cursor-pointer"}
+            style={{
+              width: "clamp(280px, 32vw, 520px)",
+              height: "clamp(300px, 52vh, 600px)",
+              flexShrink: 1,
+              minHeight: 0,
+            }}
           >
             <Avatar3D isSpeaking={isSpeaking} />
           </div>
@@ -188,15 +201,15 @@ export default function TalkPage() {
             >
               {!conversationStarted ? (
                 <>
-                  <p className="font-semibold" style={{ fontSize: 20, color: "var(--text-2)" }}>Connecting...</p>
-                  <p style={{ fontSize: 14, color: "var(--text-3)", marginTop: 4 }}>Setting up your conversation with AlgaeTree AI</p>
+                  <p className="font-semibold" style={{ fontSize: "clamp(14px, 1.4vw, 20px)", color: "var(--text-2)" }}>Connecting...</p>
+                  <p style={{ fontSize: "clamp(11px, 1vw, 14px)", color: "var(--text-3)", marginTop: 4 }}>Setting up your conversation with AlgaeTree AI</p>
                 </>
               ) : (
                 <>
-                  <p className="font-semibold" style={{ fontSize: 20, color: isSpeaking ? "#4ade80" : "var(--text-2)" }}>
+                  <p className="font-semibold" style={{ fontSize: "clamp(14px, 1.4vw, 20px)", color: isSpeaking ? "#4ade80" : "var(--text-2)" }}>
                     {isSpeaking ? "AlgaeTree is speaking..." : "Listening..."}
                   </p>
-                  <p style={{ fontSize: 14, color: "var(--text-3)", marginTop: 4 }}>
+                  <p style={{ fontSize: "clamp(11px, 1vw, 14px)", color: "var(--text-3)", marginTop: 4 }}>
                     {isSpeaking ? "Processing your request" : "Speak naturally, I'm listening"}
                   </p>
                 </>
@@ -210,10 +223,10 @@ export default function TalkPage() {
                 onClick={startConversation}
                 className="flex items-center cursor-pointer font-semibold text-white"
                 style={{
-                  gap: 12, padding: "16px 36px", borderRadius: 50,
+                  gap: 10, padding: "clamp(10px, 1.2vh, 16px) clamp(20px, 2.5vw, 36px)", borderRadius: 50,
                   background: "linear-gradient(135deg, #16a34a, #22c55e)",
                   boxShadow: "0 8px 30px rgba(34,197,94,0.3)",
-                  border: "none", fontSize: 15,
+                  border: "none", fontSize: "clamp(12px, 1.1vw, 15px)",
                 }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -229,9 +242,9 @@ export default function TalkPage() {
                 onClick={endConversation}
                 className="flex items-center cursor-pointer font-semibold"
                 style={{
-                  gap: 12, padding: "16px 36px", borderRadius: 50,
+                  gap: 10, padding: "clamp(10px, 1.2vh, 16px) clamp(20px, 2.5vw, 36px)", borderRadius: 50,
                   background: "rgba(239,68,68,0.12)", color: "#f87171",
-                  border: "1px solid rgba(239,68,68,0.25)", fontSize: 15,
+                  border: "1px solid rgba(239,68,68,0.25)", fontSize: "clamp(12px, 1.1vw, 15px)",
                 }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -248,7 +261,7 @@ export default function TalkPage() {
         {/* ── RIGHT INFO PANEL ── */}
         <motion.div
           className="relative flex flex-col"
-          style={{ width: 240, gap: 14 }}
+          style={{ width: "clamp(160px, 17vw, 240px)", gap: "clamp(6px, 1.2vh, 14px)", flexShrink: 0 }}
           initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3, duration: 0.5 }}
@@ -262,17 +275,17 @@ export default function TalkPage() {
             <motion.div
               key={item.label}
               className="card"
-              style={{ padding: "16px 18px" }}
+              style={{ padding: "clamp(10px, 1.4vh, 16px) clamp(12px, 1.2vw, 18px)" }}
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.4 + i * 0.08 }}
             >
-              <div className="flex items-center" style={{ gap: 10, marginBottom: 8 }}>
-                <span style={{ fontSize: 18 }}>{item.icon}</span>
-                <span className="font-bold" style={{ fontSize: 13, color: "var(--text-2)" }}>{item.label}</span>
+              <div className="flex items-center" style={{ gap: 8, marginBottom: "clamp(4px, 0.6vh, 8px)" }}>
+                <span style={{ fontSize: "clamp(14px, 1.4vw, 18px)" }}>{item.icon}</span>
+                <span className="font-bold" style={{ fontSize: "clamp(11px, 1vw, 13px)", color: "var(--text-2)" }}>{item.label}</span>
               </div>
-              <p className="font-extrabold" style={{ fontSize: 22, color: "#4ade80" }}>{item.value}</p>
-              <p style={{ fontSize: 11, color: "var(--text-3)", marginTop: 4, lineHeight: 1.4 }}>{item.sub}</p>
+              <p className="font-extrabold" style={{ fontSize: "clamp(16px, 1.8vw, 22px)", color: "#4ade80" }}>{item.value}</p>
+              <p style={{ fontSize: "clamp(9px, 0.85vw, 11px)", color: "var(--text-3)", marginTop: "clamp(2px, 0.4vh, 4px)", lineHeight: 1.4 }}>{item.sub}</p>
             </motion.div>
           ))}
         </motion.div>
