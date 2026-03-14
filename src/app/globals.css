@@ -70,6 +70,10 @@
   75% { transform: scale(1.03); box-shadow: 0 0 65px var(--green-glow); }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+@keyframes card-glow {
+  0%, 100% { box-shadow: 0 4px 30px rgba(0,0,0,0.3), inset 0 1px 0 var(--highlight); }
+  50% { box-shadow: 0 4px 40px rgba(0,0,0,0.35), 0 0 30px rgba(34,197,94,0.06), inset 0 1px 0 var(--highlight); }
+}
 @keyframes pulse-green-ring {
   0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.5); }
   50% { box-shadow: 0 0 0 6px rgba(34,197,94,0); }
@@ -132,7 +136,7 @@
 
   /* ===== PROGRESS BAR ===== */
   .bar-track {
-    width: 100%; height: 6px;
+    width: 100%; height: 8px;
     background: rgba(255,255,255,0.06);
     border-radius: 99px; overflow: hidden;
   }
@@ -195,6 +199,9 @@
 
   /* ── Dashboard page ── */
   .dash-nav-tabs { display: none !important; }
+  .dash-mobile-menu-btn { display: flex !important; }
+  .dash-mobile-menu-overlay { display: block !important; }
+  .dash-mobile-menu-panel { display: flex !important; }
 
   .dash-grid {
     display: grid !important;
@@ -214,8 +221,17 @@
   .dash-hero { display: none !important; }
   .dash-desktop-cta { display: none !important; }
 
-  .dash-mobile-cta { display: flex !important; }
   .dash-mobile-efficiency { display: flex !important; }
+
+  /* Biomass & CTA: each full-width on its own row */
+  .dash-mobile-biomass {
+    grid-column: 1 / -1 !important;
+  }
+  .dash-mobile-cta {
+    display: flex !important;
+    grid-column: 1 / -1 !important;
+    order: 90 !important;
+  }
 
   .dash-footer {
     grid-column: 1 / -1 !important;
@@ -223,6 +239,7 @@
     grid-template-columns: 1fr 1fr !important;
     gap: 12px !important;
     padding: 16px !important;
+    order: 100 !important;
   }
 
   /* Navbar mobile adjustments */
