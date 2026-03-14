@@ -396,19 +396,10 @@ export default function DashboardPage() {
             <SemiGauge icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#38bdf8" strokeWidth="2" strokeLinecap="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg>} label="Dissolved O₂" value={d.do2} unit="mg/L" min={0} max={14} color="#38bdf8" delay={0.3} tint="rgba(56,189,248,0.04)" />
             <SemiGauge icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#f97316" strokeWidth="2" strokeLinecap="round"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></svg>} label="Temperature" value={d.temp} unit="°C" min={0} max={50} color="#f97316" delay={0.4} tint="rgba(249,115,22,0.04)" />
 
-            {/* Efficiency ring (mobile only) */}
-            <motion.div className="card flex flex-col items-center dash-mobile-efficiency" style={{ padding: "20px 16px", display: "none" }} variants={rise}>
-              <div style={{ position: "relative", width: 100, height: 60 }}>
-                <svg width="100" height="60" viewBox="0 0 100 60">
-                  <path d="M 8 55 A 42 42 0 0 1 92 55" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="8" strokeLinecap="round" />
-                  <motion.path d="M 8 55 A 42 42 0 0 1 92 55" fill="none" stroke="#4ade80" strokeWidth="8" strokeLinecap="round" strokeDasharray={`${Math.PI * 42}`} initial={{ strokeDashoffset: Math.PI * 42 }} animate={{ strokeDashoffset: Math.PI * 42 * (1 - d.efficiency / 100) }} transition={{ duration: 1.4, ease: [0.25, 0.46, 0.45, 0.94] }} style={{ filter: "drop-shadow(0 0 8px rgba(34,197,94,0.4))" }} />
-                </svg>
-                <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, textAlign: "center" }}>
-                  <span className="font-extrabold text-green-400" style={{ fontSize: 24 }}>{d.efficiency}%</span>
-                </div>
-              </div>
-              <p className="font-bold uppercase tracking-wider" style={{ fontSize: 10, color: "var(--text-3)", marginTop: 6 }}>Efficiency</p>
-            </motion.div>
+            {/* Efficiency gauge (mobile only) */}
+            <div className="dash-mobile-efficiency" style={{ display: "none" }}>
+              <SemiGauge icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#4ade80" strokeWidth="2" strokeLinecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>} label="Efficiency" value={d.efficiency} unit="%" min={0} max={100} color="#4ade80" delay={0.35} tint="rgba(34,197,94,0.04)" />
+            </div>
 
             {/* Biomass + Growth */}
             <motion.div className="card flex flex-col dash-mobile-biomass" style={{ padding: 28, background: "linear-gradient(150deg, rgba(34,197,94,0.05) 0%, var(--surface) 50%, rgba(34,197,94,0.02) 100%)" }} variants={rise} whileHover={{ scale: 1.015, transition: { duration: 0.25 } }}>

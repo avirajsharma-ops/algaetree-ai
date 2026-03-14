@@ -221,7 +221,7 @@
   .dash-hero { display: none !important; }
   .dash-desktop-cta { display: none !important; }
 
-  .dash-mobile-efficiency { display: flex !important; }
+  .dash-mobile-efficiency { display: contents !important; }
 
   /* Biomass & CTA: each full-width on its own row */
   .dash-mobile-biomass {
