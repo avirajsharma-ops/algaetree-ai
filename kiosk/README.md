@@ -1,11 +1,12 @@
 # AlgaeTree AI – Raspberry Pi Kiosk Setup
 
-This directory contains everything needed to run AlgaeTree AI as a **locked-down fullscreen kiosk** on a Raspberry Pi.
+This directory contains everything needed to run AlgaeTree AI as a **locked-down fullscreen kiosk** on a Raspberry Pi. You can install it as a **`.deb` package** — no manual setup required.
 
 ---
 
 ## Features
 
+- **Installable `.deb` package** — Single-command install via `dpkg -i`, clean uninstall supported
 - **Fullscreen kiosk mode** — Electron app runs in true kiosk/fullscreen, no window chrome
 - **Auto-start on boot** — Starts automatically via systemd service
 - **Cannot be exited** — All keyboard shortcuts (Alt+F4, Ctrl+W, Ctrl+Q, Escape, etc.) are blocked
@@ -29,9 +30,21 @@ This directory contains everything needed to run AlgaeTree AI as a **locked-down
 
 ---
 
-## Quick Setup
+## Installation (Recommended)
 
-### 1. Flash Raspberry Pi OS
+### 1. Build the `.deb` package
+
+On your development machine (macOS/Linux with Node.js 18+):
+
+```bash
+cd kiosk/
+bash build-deb.sh              # For Pi 4/5 (arm64)
+bash build-deb.sh --armv7l     # For Pi 3 or older (armv7l)
+```
+
+This produces a `.deb` file in `kiosk/dist/`.
+
+### 2. Flash Raspberry Pi OS
 
 Use [Raspberry Pi Imager](https://www.raspberrypi.com/software/) to flash **Raspberry Pi OS (64-bit) with Desktop** to your SD card.
 
@@ -40,33 +53,45 @@ In the imager settings, enable:
 - **WiFi** (enter your network credentials)
 - Set **username** to `pi`
 
-### 2. Copy the kiosk folder to the Pi
+### 3. Copy and install the `.deb` package
 
-From your development machine:
 ```bash
-scp -r kiosk/ pi@<pi-ip-address>:~/algaetree-kiosk/
+# Copy .deb to the Pi
+scp kiosk/dist/algaetree-kiosk_*.deb pi@<pi-ip>:~/
+
+# SSH into the Pi
+ssh pi@<pi-ip>
+
+# Install the package (auto-installs dependencies)
+sudo dpkg -i algaetree-kiosk_*.deb
+sudo apt-get install -f
+
+# Reboot to start the kiosk
+sudo reboot
 ```
 
-### 3. Run the setup script
+That's it! After reboot, AlgaeTree AI launches automatically in fullscreen kiosk mode.
 
-SSH into the Pi and run:
+### Uninstall
+
 ```bash
-ssh pi@<pi-ip-address>
+sudo dpkg -r algaetree-kiosk
+```
+
+This cleanly removes the app, systemd service, and all kiosk configurations.
+
+---
+
+## Alternative: Manual Setup
+
+If you prefer not to use the `.deb` package, the manual setup scripts are still available:
+
+```bash
+scp -r kiosk/ pi@<pi-ip>:~/algaetree-kiosk/
+ssh pi@<pi-ip>
 cd ~/algaetree-kiosk
 sudo bash setup-raspberry-pi.sh
 ```
-
-The script will:
-1. Update system packages
-2. Install all dependencies (Node.js, Electron, display libs)
-3. Install the kiosk npm packages
-4. Disable screen blanking & screensaver
-5. Create a systemd service for auto-start
-6. Configure kiosk lockdown (disable keyboard shortcuts)
-7. Enable auto-login
-8. Reboot the Pi
-
-After reboot, the AlgaeTree AI kiosk will start automatically in fullscreen.
 
 ---
 
@@ -171,11 +196,19 @@ hdmi_mode=82
 ```
 kiosk/
 ├── main.js                  # Electron main process (kiosk window, shortcuts, WiFi)
-├── preload.js              # Secure bridge for WiFi operations
-├── offline.html            # Offline page with WiFi setup guide
-├── package.json            # Node/Electron dependencies
-├── setup-raspberry-pi.sh   # One-command Pi setup script
-├── update-url.sh           # Change the loaded URL
-├── emergency-exit.sh       # Stop kiosk for maintenance
-└── README.md               # This file
+├── preload.js               # Secure bridge for WiFi operations
+├── offline.html             # Offline page with WiFi setup guide
+├── package.json             # Node/Electron dependencies & build config
+├── electron-builder.yml     # electron-builder config for .deb packaging
+├── build-deb.sh             # Build the .deb package (run on dev machine)
+├── conf/
+│   └── 10-disable-blanking.conf  # Xorg config bundled into the .deb
+├── scripts/
+│   ├── postinst.sh          # Runs after install (systemd, lockdown, auto-login)
+│   ├── prerm.sh             # Runs before uninstall (stops service)
+│   └── postrm.sh           # Runs after uninstall (cleanup)
+├── setup-raspberry-pi.sh    # Legacy manual setup script
+├── update-url.sh            # Change the loaded URL
+├── emergency-exit.sh        # Stop kiosk for maintenance
+└── README.md                # This file
 ```
