@@ -316,7 +316,7 @@ function AvatarModel({ isSpeaking }: { isSpeaking: boolean }) {
     });
   });
 
-  return <primitive object={scene} position={[0, -1.58, 0]} rotation={[-0.06, 0, 0]} />;
+  return <primitive object={scene} position={[0, -1.5, 0]} rotation={[-0.04, 0, 0]} />;
 }
 
 /* ── Loading placeholder ── */
@@ -364,7 +364,7 @@ export default function Avatar3D({ isSpeaking }: { isSpeaking: boolean }) {
       <Suspense fallback={<Loader />}>
         <div style={{ width: "100%", height: "100%", overflow: "hidden" }}>
           <Canvas
-            camera={{ position: [0, -0.05, 1.55], fov: 30 }}
+            camera={{ position: [0, 0.25, 1.8], fov: 28 }}
             gl={{ alpha: true, antialias: true }}
             dpr={[1, 2]}
             onCreated={({ gl }) => {

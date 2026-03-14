@@ -15,15 +15,103 @@ const rise = {
   show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" as const } },
 };
 
-function Bar({ pct, color }: { pct: number; color: string }) {
+/* ── Animated Semicircle Gauge ── */
+function SemiGauge({ value, min, max, label, unit, color, icon, delay = 0 }: {
+  value: number; min: number; max: number; label: string; unit: string;
+  color: string; icon: string; delay?: number;
+}) {
+  const pct = Math.min(Math.max((value - min) / (max - min), 0), 1);
+  const r = 58;
+  const circumHalf = Math.PI * r;
+  const dashLen = pct * circumHalf;
+  const trackColor = "rgba(255,255,255,0.06)";
+
   return (
-    <div className="bar-track" style={{ marginTop: 14 }}>
-      <motion.div
-        className={`bar-fill ${color}`}
-        initial={{ width: 0 }}
-        animate={{ width: `${Math.min(pct, 100)}%` }}
-        transition={{ duration: 1.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-      />
+    <motion.div
+      className="card flex flex-col items-center"
+      style={{ padding: "24px 20px 18px" }}
+      variants={rise}
+    >
+      <div style={{ position: "relative", width: 140, height: 80 }}>
+        <svg width="140" height="80" viewBox="0 0 140 80">
+          {/* Track */}
+          <path
+            d="M 10 75 A 58 58 0 0 1 130 75"
+            fill="none"
+            stroke={trackColor}
+            strokeWidth="10"
+            strokeLinecap="round"
+          />
+          {/* Value arc */}
+          <motion.path
+            d="M 10 75 A 58 58 0 0 1 130 75"
+            fill="none"
+            stroke={color}
+            strokeWidth="10"
+            strokeLinecap="round"
+            strokeDasharray={`${circumHalf}`}
+            initial={{ strokeDashoffset: circumHalf }}
+            animate={{ strokeDashoffset: circumHalf - dashLen }}
+            transition={{ duration: 1.4, delay, ease: [0.25, 0.46, 0.45, 0.94] }}
+            style={{ filter: `drop-shadow(0 0 8px ${color}40)` }}
+          />
+        </svg>
+        {/* Center value */}
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, textAlign: "center" }}>
+          <motion.span
+            className="font-extrabold"
+            style={{ fontSize: 28, lineHeight: 1 }}
+            key={String(value)}
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            {value}
+          </motion.span>
+          <span style={{ fontSize: 12, color: "var(--text-3)", marginLeft: 2 }}>{unit}</span>
+        </div>
+      </div>
+      <div className="flex items-center" style={{ gap: 6, marginTop: 10 }}>
+        <span style={{ fontSize: 16 }}>{icon}</span>
+        <span className="font-semibold" style={{ fontSize: 13, color: "var(--text-2)" }}>{label}</span>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ── Animated Vertical Bar Chart ── */
+function BarChart({ bars, delay = 0 }: {
+  bars: { label: string; value: number; max: number; color: string }[];
+  delay?: number;
+}) {
+  return (
+    <div className="flex items-end justify-center" style={{ gap: 10, height: 80 }}>
+      {bars.map((b, i) => {
+        const pct = Math.min(b.value / b.max, 1);
+        return (
+          <div key={b.label} className="flex flex-col items-center" style={{ gap: 4 }}>
+            <div
+              style={{
+                width: 20, height: 70, borderRadius: 6,
+                background: "rgba(255,255,255,0.06)",
+                position: "relative", overflow: "hidden",
+                display: "flex", alignItems: "flex-end",
+              }}
+            >
+              <motion.div
+                style={{
+                  width: "100%", borderRadius: 6,
+                  background: `linear-gradient(to top, ${b.color}, ${b.color}aa)`,
+                  boxShadow: `0 0 10px ${b.color}30`,
+                }}
+                initial={{ height: 0 }}
+                animate={{ height: `${pct * 100}%` }}
+                transition={{ duration: 1, delay: delay + i * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+              />
+            </div>
+            <span style={{ fontSize: 9, color: "var(--text-3)", fontWeight: 600 }}>{b.label}</span>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -42,53 +130,21 @@ function Badge({ label, color = "green" }: { label: string; color?: string }) {
   );
 }
 
-function Metric({ icon, label, value, unit, target, badge, bar, barColor }: {
-  icon: string; label: string; value: number | string; unit: string;
-  target?: string; badge: string; bar?: number; barColor?: string;
-}) {
+/* ── Animated horizontal progress bar ── */
+function AnimBar({ pct, color, delay = 0 }: { pct: number; color: string; delay?: number }) {
   return (
-    <motion.div className="card flex flex-col" style={{ padding: 28 }} variants={rise}>
-      {/* Top row */}
-      <div className="flex items-start justify-between" style={{ marginBottom: 16 }}>
-        <div
-          className="flex items-center justify-center rounded-2xl text-xl"
-          style={{ width: 48, height: 48, background: "rgba(34,197,94,0.08)" }}
-        >
-          {icon}
-        </div>
-        <div className="text-right">
-          <motion.span
-            className="font-extrabold leading-none"
-            style={{ fontSize: "2.25rem" }}
-            key={String(value)}
-            initial={{ opacity: 0.6, y: 3 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25 }}
-          >
-            {value}
-          </motion.span>
-          <span className="font-medium" style={{ fontSize: 13, color: "var(--text-3)", marginLeft: 4 }}>{unit}</span>
-        </div>
-      </div>
-
-      {/* Label + bar */}
-      <p className="font-medium" style={{ fontSize: 14, color: "var(--text-2)" }}>{label}</p>
-      {bar !== undefined && <Bar pct={bar} color={barColor || "green"} />}
-
-      {/* Footer */}
-      <div
-        className="flex items-center justify-between"
-        style={{ marginTop: "auto", paddingTop: 18, borderTop: "1px solid rgba(255,255,255,0.06)" }}
-      >
-        {target && (
-          <div>
-            <p className="font-semibold uppercase tracking-wider" style={{ fontSize: 10, color: "var(--text-3)" }}>Target</p>
-            <p className="font-semibold" style={{ fontSize: 14, marginTop: 2 }}>{target}</p>
-          </div>
-        )}
-        <Badge label={badge} />
-      </div>
-    </motion.div>
+    <div className="bar-track" style={{ marginTop: 10 }}>
+      <motion.div
+        style={{
+          height: "100%", borderRadius: 99,
+          background: `linear-gradient(90deg, ${color}cc, ${color})`,
+          boxShadow: `0 0 12px ${color}40`,
+        }}
+        initial={{ width: 0 }}
+        animate={{ width: `${Math.min(pct, 100)}%` }}
+        transition={{ duration: 1.2, delay, ease: [0.25, 0.46, 0.45, 0.94] }}
+      />
+    </div>
   );
 }
 
@@ -146,7 +202,7 @@ export default function DashboardPage() {
 
       {/* ────── NAVBAR ────── */}
       <motion.nav
-        className="card relative z-10 flex items-center justify-between"
+        className="card relative z-10 flex items-center justify-between dash-navbar"
         style={{ margin: "20px 24px 0", padding: "14px 28px", borderRadius: 20 }}
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -181,7 +237,7 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        <span className="font-semibold tabular-nums" style={{ fontSize: 15, color: "var(--text-3)" }}>{time}</span>
+        <span className="font-semibold tabular-nums dash-time" style={{ fontSize: 15, color: "var(--text-3)" }}>{time}</span>
       </motion.nav>
 
       {/* ────── BENTO GRID ────── */}
@@ -197,9 +253,9 @@ export default function DashboardPage() {
         initial="hidden"
         animate="show"
       >
-        {/* ── HERO CARD (spans 1 col, 2 rows) ── */}
+        {/* ── HERO CARD (spans 1 col, 2 rows) — hidden on mobile ── */}
         <motion.div
-          className="card flex flex-col"
+          className="card flex flex-col dash-hero"
           style={{ padding: 32, gridRow: "1 / 3" }}
           variants={rise}
         >
@@ -216,7 +272,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Tree image */}
-          <div className="flex-1 flex flex-col items-center justify-center" style={{ gap: 8 }}>
+          <div className="flex-1 flex flex-col items-center justify-center dash-tree-section" style={{ gap: 8 }}>
             <div className="relative float-anim" style={{ width: 220, height: 260 }}>
               <Image
                 src="https://iot.algaetree.in/Algaetree.png"
@@ -244,11 +300,11 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          {/* CTA */}
+          {/* CTA — desktop only, duplicated below for mobile */}
           <motion.button
             onClick={() => { setNavigating(true); router.push("/talk"); }}
             disabled={navigating}
-            className="glow-btn flex items-center justify-center cursor-pointer"
+            className="glow-btn flex items-center justify-center cursor-pointer dash-desktop-cta"
             style={{
               gap: 10,
               marginTop: 20,
@@ -303,43 +359,154 @@ export default function DashboardPage() {
           </div>
         </motion.div>
 
-        {/* ── pH ── */}
-        <Metric
+        {/* ── pH Gauge ── */}
+        <SemiGauge
           icon="🧪" label="pH Level" value={d.ph} unit="pH"
-          target="6.8 – 7.2" badge="Optimal"
-          bar={(d.ph / 14) * 100} barColor="green"
+          min={0} max={14} color="#4ade80" delay={0.2}
         />
 
-        {/* ── DO₂ ── */}
-        <Metric
-          icon="💧" label="Dissolved Oxygen" value={d.do2} unit="mg/L"
-          target="6 – 10" badge="Optimal"
-          bar={(d.do2 / 14) * 100} barColor="blue"
+        {/* ── Dissolved Oxygen Gauge ── */}
+        <SemiGauge
+          icon="💧" label="Dissolved O₂" value={d.do2} unit="mg/L"
+          min={0} max={14} color="#38bdf8" delay={0.3}
         />
 
-        {/* ── Temp ── */}
-        <Metric
+        {/* ── Temperature Gauge ── */}
+        <SemiGauge
           icon="🌡️" label="Temperature" value={d.temp} unit="°C"
-          target="25 – 30°C" badge="Optimal"
-          bar={(d.temp / 50) * 100} barColor="orange"
+          min={0} max={50} color="#f97316" delay={0.4}
         />
 
-        {/* ── Biomass + Growth (stacked) ── */}
-        <motion.div className="flex flex-col" style={{ gap: 16 }} variants={rise}>
-          <Metric
-            icon="🧬" label="Biomass Density" value={d.biomass} unit="g/L"
-            badge="Growing" bar={(d.biomass / 5) * 100} barColor="green"
-          />
-          <div
-            className="card flex items-center justify-between"
-            style={{ padding: "18px 24px" }}
-          >
-            <div>
-              <p className="font-semibold uppercase tracking-wider" style={{ fontSize: 10, color: "var(--text-3)" }}>Growth Rate</p>
-              <p className="font-bold text-green-400" style={{ fontSize: 15, marginTop: 2 }}>+{d.growth}%/hr</p>
+        {/* ── Biomass + Growth with bar chart ── */}
+        <motion.div className="card flex flex-col" style={{ padding: 24 }} variants={rise}>
+          <div className="flex items-center justify-between" style={{ marginBottom: 12 }}>
+            <div className="flex items-center" style={{ gap: 8 }}>
+              <span style={{ fontSize: 18 }}>🧬</span>
+              <span className="font-semibold" style={{ fontSize: 14, color: "var(--text-2)" }}>Biomass & Growth</span>
             </div>
             <Badge label="Growing" />
           </div>
+
+          <div className="flex items-center justify-between" style={{ marginBottom: 8 }}>
+            <div>
+              <motion.span
+                className="font-extrabold"
+                style={{ fontSize: 32 }}
+                key={String(d.biomass)}
+                initial={{ opacity: 0.6, y: 3 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                {d.biomass}
+              </motion.span>
+              <span style={{ fontSize: 13, color: "var(--text-3)", marginLeft: 4 }}>g/L</span>
+            </div>
+            <div className="text-right">
+              <p className="font-bold text-green-400" style={{ fontSize: 18 }}>+{d.growth}%</p>
+              <p style={{ fontSize: 10, color: "var(--text-3)" }}>per hour</p>
+            </div>
+          </div>
+
+          <AnimBar pct={(d.biomass / 5) * 100} color="#4ade80" delay={0.4} />
+
+          <div style={{ marginTop: 16 }}>
+            <BarChart
+              delay={0.5}
+              bars={[
+                { label: "Mon", value: 1.8, max: 5, color: "#4ade80" },
+                { label: "Tue", value: 2.0, max: 5, color: "#4ade80" },
+                { label: "Wed", value: 1.9, max: 5, color: "#4ade80" },
+                { label: "Thu", value: 2.2, max: 5, color: "#4ade80" },
+                { label: "Fri", value: 2.1, max: 5, color: "#22c55e" },
+                { label: "Sat", value: d.biomass, max: 5, color: "#16a34a" },
+              ]}
+            />
+          </div>
+        </motion.div>
+
+        {/* ── Mobile CTA card (hidden on desktop) ── */}
+        <motion.div
+          className="card dash-mobile-cta"
+          style={{ padding: 20, display: "none" }}
+          variants={rise}
+        >
+          <div className="flex items-center" style={{ gap: 10, marginBottom: 12 }}>
+            <div
+              className="rounded-full flex items-center justify-center"
+              style={{ width: 40, height: 40, background: "rgba(34,197,94,0.15)" }}
+            >
+              <span style={{ fontSize: 20 }}>🌿</span>
+            </div>
+            <div>
+              <p className="font-bold" style={{ fontSize: 15 }}>AI Assistant</p>
+              <p style={{ fontSize: 11, color: "var(--text-3)" }}>Talk to your bio-reactor</p>
+            </div>
+          </div>
+          <motion.button
+            onClick={() => { setNavigating(true); router.push("/talk"); }}
+            disabled={navigating}
+            className="glow-btn flex items-center justify-center cursor-pointer"
+            style={{
+              width: "100%",
+              gap: 8,
+              padding: "14px 0",
+              borderRadius: 14,
+              background: navigating
+                ? "linear-gradient(135deg, #15803d, #16a34a)"
+                : "linear-gradient(135deg, #16a34a, #22c55e)",
+              color: "#fff",
+              fontWeight: 700,
+              fontSize: 14,
+              border: "none",
+              boxShadow: "0 6px 24px rgba(34,197,94,0.3)",
+              opacity: navigating ? 0.85 : 1,
+            }}
+            whileTap={navigating ? {} : { scale: 0.97 }}
+          >
+            {navigating ? (
+              <>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ animation: "spin 1s linear infinite" }}>
+                  <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" strokeWidth="3" />
+                  <path d="M12 2a10 10 0 0 1 10 10" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
+                </svg>
+                <span>Loading…</span>
+              </>
+            ) : (
+              <>
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
+                  <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
+                </svg>
+                <span>Talk to the Tree</span>
+                <span className="pulse-dot rounded-full" style={{ width: 6, height: 6, background: "#fff" }} />
+              </>
+            )}
+          </motion.button>
+        </motion.div>
+
+        {/* ── Efficiency ring (mobile only, replaces hero) ── */}
+        <motion.div
+          className="card flex flex-col items-center dash-mobile-efficiency"
+          style={{ padding: "20px 16px", display: "none" }}
+          variants={rise}
+        >
+          <div style={{ position: "relative", width: 100, height: 60 }}>
+            <svg width="100" height="60" viewBox="0 0 100 60">
+              <path d="M 8 55 A 42 42 0 0 1 92 55" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="8" strokeLinecap="round" />
+              <motion.path
+                d="M 8 55 A 42 42 0 0 1 92 55"
+                fill="none" stroke="#4ade80" strokeWidth="8" strokeLinecap="round"
+                strokeDasharray={`${Math.PI * 42}`}
+                initial={{ strokeDashoffset: Math.PI * 42 }}
+                animate={{ strokeDashoffset: Math.PI * 42 * (1 - d.efficiency / 100) }}
+                transition={{ duration: 1.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+                style={{ filter: "drop-shadow(0 0 8px rgba(34,197,94,0.4))" }}
+              />
+            </svg>
+            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, textAlign: "center" }}>
+              <span className="font-extrabold text-green-400" style={{ fontSize: 24 }}>{d.efficiency}%</span>
+            </div>
+          </div>
+          <p className="font-bold uppercase tracking-wider" style={{ fontSize: 10, color: "var(--text-3)", marginTop: 6 }}>Efficiency</p>
         </motion.div>
 
         {/* ── FOOTER (spans full width) ── */}

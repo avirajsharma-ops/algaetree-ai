@@ -151,7 +151,7 @@ export default function TalkPage() {
   }, []);
 
   return (
-    <div className="h-screen flex flex-col" style={{ background: "var(--bg)" }}>
+    <div className="h-screen flex flex-col" style={{ background: "var(--bg)", position: "relative", overflow: "hidden" }}>
       {/* Ambient BG */}
       <div className="ambient-bg">
         <div className="orb orb-1" />
@@ -159,10 +159,34 @@ export default function TalkPage() {
         <div className="orb orb-3" />
       </div>
 
-      {/* ── Topbar (hidden on mobile) ── */}
+      {/* ── LAYER 0: Full-screen avatar canvas ── */}
+      <div
+        onClick={conversationStarted ? undefined : startConversation}
+        className={`talk-avatar-container ${conversationStarted ? "" : "cursor-pointer"}`}
+        style={{ position: "absolute", inset: 0, zIndex: 1 }}
+      >
+        <Avatar3D isSpeaking={isSpeaking} />
+      </div>
+
+      {/* ── LAYER 1: Full-width dark gradient at bottom ── */}
+      <div
+        className="talk-gradient-overlay"
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: "50%",
+          background: "linear-gradient(to top, rgba(5,10,8,0.97) 0%, rgba(5,10,8,0.85) 25%, rgba(5,10,8,0.5) 55%, transparent 100%)",
+          pointerEvents: "none",
+          zIndex: 2,
+        }}
+      />
+
+      {/* ── LAYER 2: Topbar (hidden on mobile) ── */}
       <motion.nav
-        className="card relative z-10 items-center justify-between talk-topbar"
-        style={{ margin: "20px 24px 0", padding: "14px 28px", borderRadius: 20 }}
+        className="card relative items-center justify-between talk-topbar"
+        style={{ margin: "20px 24px 0", padding: "14px 28px", borderRadius: 20, zIndex: 10 }}
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
       >
@@ -203,28 +227,27 @@ export default function TalkPage() {
         )}
       </motion.nav>
 
-      {/* ── Main: 3-column layout (fullscreen on mobile) ── */}
+      {/* ── LAYER 3: Side panels (hidden on mobile) ── */}
       <div
-        className="relative z-10 flex items-center justify-between talk-main"
-        style={{ flex: 1, minHeight: 0, padding: "0 clamp(16px, 3vw, 56px)" }}
+        className="talk-panels-row"
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "0 clamp(16px, 3vw, 56px)",
+          pointerEvents: "none",
+          zIndex: 5,
+        }}
       >
-        {/* Ambient glow */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div
-            className="rounded-full blur-3xl transition-all duration-1000"
-            style={{
-              width: "30vw", height: "30vw", maxWidth: 420, maxHeight: 420,
-              background: isSpeaking
-                ? "radial-gradient(circle, rgba(34,197,94,0.15), transparent 70%)"
-                : "radial-gradient(circle, rgba(34,197,94,0.06), transparent 70%)",
-            }}
-          />
-        </div>
-
-        {/* ── LEFT INFO PANEL (hidden on mobile) ── */}
+        {/* LEFT INFO PANEL */}
         <motion.div
           className="relative flex flex-col talk-side-panel"
-          style={{ width: "clamp(160px, 17vw, 240px)", gap: "clamp(6px, 1.2vh, 14px)", flexShrink: 0 }}
+          style={{ width: "clamp(160px, 17vw, 240px)", gap: "clamp(6px, 1.2vh, 14px)", flexShrink: 0, pointerEvents: "auto" }}
           initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3, duration: 0.5 }}
@@ -253,130 +276,10 @@ export default function TalkPage() {
           ))}
         </motion.div>
 
-        {/* ── CENTER: Avatar + controls ── */}
-        <div
-          className="relative talk-center"
-          style={{ flex: 1, minWidth: 0, minHeight: 0, position: "relative", overflow: "hidden", alignSelf: "stretch" }}
-        >
-          {/* Avatar container — fills entire area, touches bottom */}
-          <div
-            onClick={conversationStarted ? undefined : startConversation}
-            className={`talk-avatar-container ${conversationStarted ? "" : "cursor-pointer"}`}
-            style={{
-              position: "absolute",
-              inset: 0,
-              width: "100%",
-              height: "100%",
-            }}
-          >
-            <Avatar3D isSpeaking={isSpeaking} />
-          </div>
-
-          {/* Dark gradient overlay at bottom for controls */}
-          <div
-            className="talk-gradient-overlay"
-            style={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              right: 0,
-              height: "45%",
-              background: "linear-gradient(to top, rgba(5,10,8,0.95) 0%, rgba(5,10,8,0.8) 30%, rgba(5,10,8,0.4) 60%, transparent 100%)",
-              pointerEvents: "none",
-              zIndex: 1,
-            }}
-          />
-
-          {/* Controls overlay — positioned at bottom over gradient */}
-          <div
-            className="talk-controls-overlay"
-            style={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              right: 0,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: "clamp(6px, 1vh, 14px)",
-              padding: "0 24px clamp(20px, 3vh, 40px)",
-              zIndex: 2,
-            }}
-          >
-            <SoundWave active={isSpeaking} />
-
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={conversationStarted ? "on" : "off"}
-                className="text-center"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-              >
-                {!conversationStarted ? (
-                  <>
-                    <p className="font-semibold" style={{ fontSize: "clamp(14px, 1.4vw, 20px)", color: "var(--text-2)" }}>Connecting...</p>
-                    <p style={{ fontSize: "clamp(11px, 1vw, 14px)", color: "var(--text-3)", marginTop: 4 }}>Setting up your conversation with AlgaeTree AI</p>
-                  </>
-                ) : (
-                  <>
-                    <p className="font-semibold" style={{ fontSize: "clamp(14px, 1.4vw, 20px)", color: isSpeaking ? "#4ade80" : "var(--text-2)" }}>
-                      {isSpeaking ? "AlgaeTree is speaking..." : "Listening..."}
-                    </p>
-                    <p style={{ fontSize: "clamp(11px, 1vw, 14px)", color: "var(--text-3)", marginTop: 4 }}>
-                      {isSpeaking ? "Processing your request" : "Speak naturally, I'm listening"}
-                    </p>
-                  </>
-                )}
-              </motion.div>
-            </AnimatePresence>
-
-            <div className="flex items-center" style={{ gap: 16 }}>
-            {!conversationStarted ? (
-              <motion.button
-                onClick={startConversation}
-                className="flex items-center cursor-pointer font-semibold text-white"
-                style={{
-                  gap: 10, padding: "clamp(10px, 1.2vh, 16px) clamp(20px, 2.5vw, 36px)", borderRadius: 50,
-                  background: "linear-gradient(135deg, #16a34a, #22c55e)",
-                  boxShadow: "0 8px 30px rgba(34,197,94,0.3)",
-                  border: "none", fontSize: "clamp(12px, 1.1vw, 15px)",
-                }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
-                  <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
-                </svg>
-                Reconnect
-              </motion.button>
-            ) : (
-              <motion.button
-                onClick={endConversation}
-                className="flex items-center cursor-pointer font-semibold"
-                style={{
-                  gap: 10, padding: "clamp(10px, 1.2vh, 16px) clamp(20px, 2.5vw, 36px)", borderRadius: 50,
-                  background: "rgba(239,68,68,0.12)", color: "#f87171",
-                  border: "1px solid rgba(239,68,68,0.25)", fontSize: "clamp(12px, 1.1vw, 15px)",
-                }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
-                  <rect x="6" y="6" width="12" height="12" rx="2" />
-                </svg>
-                End Conversation
-              </motion.button>
-            )}
-            </div>
-          </div>
-        </div>
-
-        {/* ── RIGHT INFO PANEL (hidden on mobile) ── */}
+        {/* RIGHT INFO PANEL */}
         <motion.div
           className="relative flex flex-col talk-side-panel"
-          style={{ width: "clamp(160px, 17vw, 240px)", gap: "clamp(6px, 1.2vh, 14px)", flexShrink: 0 }}
+          style={{ width: "clamp(160px, 17vw, 240px)", gap: "clamp(6px, 1.2vh, 14px)", flexShrink: 0, pointerEvents: "auto" }}
           initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3, duration: 0.5 }}
@@ -404,6 +307,91 @@ export default function TalkPage() {
             </motion.div>
           ))}
         </motion.div>
+      </div>
+
+      {/* ── LAYER 4: Controls at bottom (full width, over gradient) ── */}
+      <div
+        className="talk-controls-overlay"
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "clamp(6px, 1vh, 14px)",
+          padding: "0 24px clamp(24px, 4vh, 48px)",
+          zIndex: 10,
+        }}
+      >
+        <SoundWave active={isSpeaking} />
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={conversationStarted ? "on" : "off"}
+            className="text-center"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+          >
+            {!conversationStarted ? (
+              <>
+                <p className="font-semibold" style={{ fontSize: "clamp(14px, 1.4vw, 20px)", color: "var(--text-2)" }}>Connecting...</p>
+                <p style={{ fontSize: "clamp(11px, 1vw, 14px)", color: "var(--text-3)", marginTop: 4 }}>Setting up your conversation with AlgaeTree AI</p>
+              </>
+            ) : (
+              <>
+                <p className="font-semibold" style={{ fontSize: "clamp(14px, 1.4vw, 20px)", color: isSpeaking ? "#4ade80" : "var(--text-2)" }}>
+                  {isSpeaking ? "AlgaeTree is speaking..." : "Listening..."}
+                </p>
+                <p style={{ fontSize: "clamp(11px, 1vw, 14px)", color: "var(--text-3)", marginTop: 4 }}>
+                  {isSpeaking ? "Processing your request" : "Speak naturally, I'm listening"}
+                </p>
+              </>
+            )}
+          </motion.div>
+        </AnimatePresence>
+
+        <div className="flex items-center" style={{ gap: 16 }}>
+          {!conversationStarted ? (
+            <motion.button
+              onClick={startConversation}
+              className="flex items-center cursor-pointer font-semibold text-white"
+              style={{
+                gap: 10, padding: "clamp(10px, 1.2vh, 16px) clamp(20px, 2.5vw, 36px)", borderRadius: 50,
+                background: "linear-gradient(135deg, #16a34a, #22c55e)",
+                boxShadow: "0 8px 30px rgba(34,197,94,0.3)",
+                border: "none", fontSize: "clamp(12px, 1.1vw, 15px)",
+              }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
+                <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
+              </svg>
+              Reconnect
+            </motion.button>
+          ) : (
+            <motion.button
+              onClick={endConversation}
+              className="flex items-center cursor-pointer font-semibold"
+              style={{
+                gap: 10, padding: "clamp(10px, 1.2vh, 16px) clamp(20px, 2.5vw, 36px)", borderRadius: 50,
+                background: "rgba(239,68,68,0.12)", color: "#f87171",
+                border: "1px solid rgba(239,68,68,0.25)", fontSize: "clamp(12px, 1.1vw, 15px)",
+              }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                <rect x="6" y="6" width="12" height="12" rx="2" />
+              </svg>
+              End Conversation
+            </motion.button>
+          )}
+        </div>
       </div>
     </div>
   );
