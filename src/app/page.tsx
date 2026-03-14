@@ -131,7 +131,7 @@ export default function DashboardPage() {
           <span className="font-bold" style={{ fontSize: 18 }}>AlgaeTree</span>
         </div>
 
-        <div className="flex items-center" style={{ gap: 8 }}>
+        <div className="items-center dash-nav-tabs" style={{ gap: 8 }}>
           {["Bio-Reactor", "Environment", "Performance", "System"].map((t, i) => (
             <button
               key={t}
@@ -155,7 +155,7 @@ export default function DashboardPage() {
 
       {/* ────── BENTO GRID ────── */}
       <motion.main
-        className="relative z-10 flex-1 grid overflow-hidden"
+        className="relative z-10 flex-1 grid overflow-hidden dash-grid"
         style={{
           padding: "20px 24px",
           gap: 20,
@@ -295,9 +295,9 @@ export default function DashboardPage() {
           </div>
         </motion.div>
 
-        {/* ── FOOTER (spans 3 cols) ── */}
+        {/* ── FOOTER (spans full width) ── */}
         <motion.footer
-          className="card flex items-center justify-between"
+          className="card flex items-center justify-between dash-footer"
           style={{ padding: "20px 32px", gridColumn: "1 / -1" }}
           variants={rise}
         >

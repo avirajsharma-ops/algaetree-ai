@@ -159,9 +159,9 @@ export default function TalkPage() {
         <div className="orb orb-3" />
       </div>
 
-      {/* ── Topbar ── */}
+      {/* ── Topbar (hidden on mobile) ── */}
       <motion.nav
-        className="card relative z-10 flex items-center justify-between"
+        className="card relative z-10 items-center justify-between talk-topbar"
         style={{ margin: "20px 24px 0", padding: "14px 28px", borderRadius: 20 }}
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -203,9 +203,9 @@ export default function TalkPage() {
         )}
       </motion.nav>
 
-      {/* ── Main: 3-column layout ── */}
+      {/* ── Main: 3-column layout (fullscreen on mobile) ── */}
       <div
-        className="relative z-10 flex items-center justify-between"
+        className="relative z-10 flex items-center justify-between talk-main"
         style={{ flex: 1, minHeight: 0, padding: "0 clamp(16px, 3vw, 56px)" }}
       >
         {/* Ambient glow */}
@@ -221,9 +221,9 @@ export default function TalkPage() {
           />
         </div>
 
-        {/* ── LEFT INFO PANEL ── */}
+        {/* ── LEFT INFO PANEL (hidden on mobile) ── */}
         <motion.div
-          className="relative flex flex-col"
+          className="relative flex flex-col talk-side-panel"
           style={{ width: "clamp(160px, 17vw, 240px)", gap: "clamp(6px, 1.2vh, 14px)", flexShrink: 0 }}
           initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
@@ -255,13 +255,13 @@ export default function TalkPage() {
 
         {/* ── CENTER: Avatar + controls ── */}
         <div
-          className="relative flex flex-col items-center"
+          className="relative flex flex-col items-center talk-center"
           style={{ flex: 1, minWidth: 0, minHeight: 0, gap: "clamp(8px, 1.2vh, 20px)", padding: "0 clamp(8px, 1.5vw, 24px)" }}
         >
           {/* Avatar container — fluid sizing */}
           <div
             onClick={conversationStarted ? undefined : startConversation}
-            className={conversationStarted ? "" : "cursor-pointer"}
+            className={`talk-avatar-container ${conversationStarted ? "" : "cursor-pointer"}`}
             style={{
               width: "clamp(280px, 32vw, 520px)",
               height: "clamp(300px, 52vh, 600px)",
@@ -341,9 +341,9 @@ export default function TalkPage() {
           </div>
         </div>
 
-        {/* ── RIGHT INFO PANEL ── */}
+        {/* ── RIGHT INFO PANEL (hidden on mobile) ── */}
         <motion.div
-          className="relative flex flex-col"
+          className="relative flex flex-col talk-side-panel"
           style={{ width: "clamp(160px, 17vw, 240px)", gap: "clamp(6px, 1.2vh, 14px)", flexShrink: 0 }}
           initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
