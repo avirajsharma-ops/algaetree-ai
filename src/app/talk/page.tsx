@@ -255,52 +255,83 @@ export default function TalkPage() {
 
         {/* ── CENTER: Avatar + controls ── */}
         <div
-          className="relative flex flex-col items-center talk-center"
-          style={{ flex: 1, minWidth: 0, minHeight: 0, gap: "clamp(8px, 1.2vh, 20px)", padding: "0 clamp(8px, 1.5vw, 24px)" }}
+          className="relative talk-center"
+          style={{ flex: 1, minWidth: 0, minHeight: 0, position: "relative", overflow: "hidden" }}
         >
-          {/* Avatar container — fluid sizing */}
+          {/* Avatar container — fills entire area, touches bottom */}
           <div
             onClick={conversationStarted ? undefined : startConversation}
             className={`talk-avatar-container ${conversationStarted ? "" : "cursor-pointer"}`}
             style={{
-              width: "clamp(280px, 32vw, 520px)",
-              height: "clamp(300px, 52vh, 600px)",
-              flexShrink: 1,
-              minHeight: 0,
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
             }}
           >
             <Avatar3D isSpeaking={isSpeaking} />
           </div>
 
-          <SoundWave active={isSpeaking} />
+          {/* Dark gradient overlay at bottom for controls */}
+          <div
+            className="talk-gradient-overlay"
+            style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: "45%",
+              background: "linear-gradient(to top, rgba(5,10,8,0.95) 0%, rgba(5,10,8,0.8) 30%, rgba(5,10,8,0.4) 60%, transparent 100%)",
+              pointerEvents: "none",
+              zIndex: 1,
+            }}
+          />
 
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={conversationStarted ? "on" : "off"}
-              className="text-center"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-            >
-              {!conversationStarted ? (
-                <>
-                  <p className="font-semibold" style={{ fontSize: "clamp(14px, 1.4vw, 20px)", color: "var(--text-2)" }}>Connecting...</p>
-                  <p style={{ fontSize: "clamp(11px, 1vw, 14px)", color: "var(--text-3)", marginTop: 4 }}>Setting up your conversation with AlgaeTree AI</p>
-                </>
-              ) : (
-                <>
-                  <p className="font-semibold" style={{ fontSize: "clamp(14px, 1.4vw, 20px)", color: isSpeaking ? "#4ade80" : "var(--text-2)" }}>
-                    {isSpeaking ? "AlgaeTree is speaking..." : "Listening..."}
-                  </p>
-                  <p style={{ fontSize: "clamp(11px, 1vw, 14px)", color: "var(--text-3)", marginTop: 4 }}>
-                    {isSpeaking ? "Processing your request" : "Speak naturally, I'm listening"}
-                  </p>
-                </>
-              )}
-            </motion.div>
-          </AnimatePresence>
+          {/* Controls overlay — positioned at bottom over gradient */}
+          <div
+            className="talk-controls-overlay"
+            style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "clamp(6px, 1vh, 14px)",
+              padding: "0 24px clamp(20px, 3vh, 40px)",
+              zIndex: 2,
+            }}
+          >
+            <SoundWave active={isSpeaking} />
 
-          <div className="flex items-center" style={{ gap: 16 }}>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={conversationStarted ? "on" : "off"}
+                className="text-center"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+              >
+                {!conversationStarted ? (
+                  <>
+                    <p className="font-semibold" style={{ fontSize: "clamp(14px, 1.4vw, 20px)", color: "var(--text-2)" }}>Connecting...</p>
+                    <p style={{ fontSize: "clamp(11px, 1vw, 14px)", color: "var(--text-3)", marginTop: 4 }}>Setting up your conversation with AlgaeTree AI</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="font-semibold" style={{ fontSize: "clamp(14px, 1.4vw, 20px)", color: isSpeaking ? "#4ade80" : "var(--text-2)" }}>
+                      {isSpeaking ? "AlgaeTree is speaking..." : "Listening..."}
+                    </p>
+                    <p style={{ fontSize: "clamp(11px, 1vw, 14px)", color: "var(--text-3)", marginTop: 4 }}>
+                      {isSpeaking ? "Processing your request" : "Speak naturally, I'm listening"}
+                    </p>
+                  </>
+                )}
+              </motion.div>
+            </AnimatePresence>
+
+            <div className="flex items-center" style={{ gap: 16 }}>
             {!conversationStarted ? (
               <motion.button
                 onClick={startConversation}
@@ -338,6 +369,7 @@ export default function TalkPage() {
                 End Conversation
               </motion.button>
             )}
+            </div>
           </div>
         </div>
 

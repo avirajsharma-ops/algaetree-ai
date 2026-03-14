@@ -186,14 +186,15 @@
   .talk-center {
     width: 100vw !important;
     height: 100vh !important;
-    padding: 0 !important;
-    gap: 8px !important;
-    justify-content: center;
+    position: fixed !important;
+    inset: 0 !important;
   }
 
   .talk-avatar-container {
+    position: absolute !important;
+    inset: 0 !important;
     width: 100vw !important;
-    height: 70vh !important;
+    height: 100vh !important;
     max-width: 100vw !important;
   }
 

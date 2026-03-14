@@ -5,7 +5,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 
-const AVATAR_URL = "/avatar.glb?v=2";
+const AVATAR_URL = "/avatar.glb";
 
 /* ── Error boundary ── */
 class AvatarErrorBoundary extends Component<
@@ -316,7 +316,7 @@ function AvatarModel({ isSpeaking }: { isSpeaking: boolean }) {
     });
   });
 
-  return <primitive object={scene} position={[0, -1.62, 0]} rotation={[-0.12, 0, 0]} />;
+  return <primitive object={scene} position={[0, -1.58, 0]} rotation={[-0.06, 0, 0]} />;
 }
 
 /* ── Loading placeholder ── */
@@ -362,9 +362,9 @@ export default function Avatar3D({ isSpeaking }: { isSpeaking: boolean }) {
   return (
     <AvatarErrorBoundary fallback={<FallbackOrb isSpeaking={isSpeaking} />}>
       <Suspense fallback={<Loader />}>
-        <div style={{ width: "100%", height: "100%", borderRadius: 28, overflow: "hidden" }}>
+        <div style={{ width: "100%", height: "100%", overflow: "hidden" }}>
           <Canvas
-            camera={{ position: [0, 0.22, 0.95], fov: 26 }}
+            camera={{ position: [0, -0.05, 1.55], fov: 30 }}
             gl={{ alpha: true, antialias: true }}
             dpr={[1, 2]}
             onCreated={({ gl }) => {
