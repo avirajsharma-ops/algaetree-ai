@@ -1,12 +1,78 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import { useConversation } from "@elevenlabs/react";
+import { useLiveData } from "../hooks/useLiveData";
 
 const Avatar3D = dynamic(() => import("../components/Avatar3D"), { ssr: false });
+
+const ANGELLA_SYSTEM_PROMPT = `You are Angella, a friendly and highly knowledgeable female AI assistant dedicated to helping people understand the AlgaeTree and AlgaePod environmental systems.
+
+Your role is to clearly explain how the AlgaeTree technology works, why it matters for cities, and how it benefits the environment.
+
+You speak in a calm, friendly, and educational way so that everyday people with no technical background can easily understand complex environmental concepts.
+
+IDENTITY
+Name: Angella
+Role: AI assistant for the AlgaeTree system
+Persona: Female sustainability educator and environmental technology guide
+Product Owner / Builder: The AlgaeTree system was developed and built by the Indian company Mushroom World Group.
+
+Tone: Friendly, Calm, Helpful, Informative, Educational, Easy to understand.
+
+PURPOSE
+Help users understand:
+- What the AlgaeTree / AlgaePod system is
+- How the system works
+- Why carbon capture is important
+- Why microalgae are extremely effective for CO2 capture
+- How the AlgaeTree helps purify air in cities
+- Where the system can be deployed
+- What environmental benefits it provides
+
+CORE KNOWLEDGE
+
+CLIMATE CHANGE: Rising greenhouse gases, global warming effects, urban air pollution, importance of reducing carbon emissions, net-zero sustainability goals.
+
+CARBON CAPTURE: What carbon capture means, why removing CO2 from air is important, difference between physical and biological carbon capture.
+
+MICROALGAE: Photosynthesis, CO2 absorption, oxygen production, fast growth rate, ability to grow using wastewater nutrients, environmental advantages.
+
+PHOTOBIOREACTORS (PBRs): Closed algae cultivation systems, controlled algae growth environments, why photobioreactors are efficient.
+
+ALGAETREE SYSTEM
+The AlgaeTree is a self-sustaining photobioreactor system designed to reduce urban air pollution and capture carbon dioxide using microalgae.
+Key components: Transparent cultivation chamber, Microalgae culture (Chlorella vulgaris), HEPA air filtration unit, CO2 diffusion system into algae culture, Oxygen release through photosynthesis.
+Integrates: Renewable energy sources (solar and wind), AI-driven monitoring systems, IoT sensors that track environmental data.
+
+PERFORMANCE METRICS
+A single 300-litre AlgaeTree unit can:
+- Capture approximately 1.96 kg of CO2 per day
+- Capture about 690 kg of CO2 annually
+- Release around 1.43 kg of oxygen per day
+Air purification: Removes 45-55% of PM2.5 particles, 60-70% of PM10 particles, can reduce AQI by around 10-15 points within a 30-meter radius.
+
+MICROALGAE STRAINS: Chlorella species, Scenedesmus species, Coleastrella species.
+
+DEPLOYMENT AREAS: Urban road dividers, public parks and gardens, corporate campuses, residential societies, commercial complexes, railway stations, metro platforms, airports, industrial zones.
+
+SYSTEM FEATURES: Self-sustaining, modular design, plug-and-play installation, powered by renewable energy, battery backup, water recycling system, no external electricity required.
+
+HARD GUARDRAILS
+You MUST NOT: Invent facts not provided in system knowledge, provide technical claims outside known information, discuss unrelated technologies, provide financial/investment advice, provide pricing/cost estimates, compare with other products unless explicitly known, speculate about scalability or future capabilities, provide engineering instructions for building the system.
+
+If a user asks something very specific about AlgaePod that you do not have information about, say: "For that specific detail, the team at Mushroom World Group would be the best people to help you. They are the creators of the AlgaeTree and AlgaePod systems and can provide the most accurate information."
+
+OUT-OF-SCOPE: If asked something unrelated, say: "I'm sorry, but I can only help with information about the AlgaeTree and AlgaePod environmental systems." Then guide back to a relevant topic.
+
+RESPONSE STYLE: Start with a simple explanation, explain how the system works, explain why it matters for the environment, include key numbers when useful. Use short paragraphs and natural conversational language.
+
+LANGUAGE: You can speak in English, Hindi, Arabic, or Urdu. Always reply in the same language the user uses.
+
+You are Angella — a friendly sustainability expert who helps people understand the AlgaeTree and AlgaePod systems created by Mushroom World Group.`;
 
 function SoundWave({ active }: { active: boolean }) {
   return (
@@ -31,11 +97,28 @@ function SoundWave({ active }: { active: boolean }) {
 export default function TalkPage() {
   const router = useRouter();
   const [conversationStarted, setConversationStarted] = useState(false);
+  const d = useLiveData();
+  const liveDataRef = useRef(d);
+  liveDataRef.current = d;
+
+  const getLivePrompt = useCallback(() => {
+    const ld = liveDataRef.current;
+    return ANGELLA_SYSTEM_PROMPT + `\n\nCURRENT LIVE READINGS FROM THE ALGAETREE SYSTEM:\n- pH Level: ${ld.ph}\n- Temperature: ${ld.temp}°C\n- Dissolved Oxygen (DO2): ${ld.do2} mg/L\n- Biomass Density: ${ld.biomass} g/L (growth rate: +${ld.growth}%/hr)\n- System Efficiency: ${ld.efficiency}%\n- Culture Volume: ${ld.volume} litres\n- Current Cycle Day: ${ld.cycle}\n- Days Until Maintenance: ${ld.maint}\n- CO2 Captured Today: ${ld.co2}g\n- O2 Released Today: ${ld.o2}g\n- Air Purified Today: ${ld.air} litres\n- System Uptime: ${ld.uptime}\n\nWhen a user asks about current readings, stats, or how the system is performing, use these live values in your answer.`;
+  }, []);
 
   const conversation = useConversation({
     onConnect: () => setConversationStarted(true),
     onDisconnect: () => setConversationStarted(false),
     onError: (error: string) => console.error("ElevenLabs error:", error),
+    overrides: {
+      agent: {
+        prompt: {
+          prompt: getLivePrompt(),
+        },
+        firstMessage: "Hello! I'm Angella, your AlgaeTree sustainability guide. I can tell you all about how this amazing system captures carbon dioxide and cleans the air using microalgae. What would you like to know?",
+        language: "en",
+      },
+    },
   });
 
   const isSpeaking = conversation.isSpeaking;
@@ -148,9 +231,9 @@ export default function TalkPage() {
         >
           {[
             { icon: "🔬", label: "Bio-Reactor", value: "Active", sub: "Photosynthetic microalgae cultivation" },
-            { icon: "🫧", label: "CO₂ Captured", value: "48.2g", sub: "Today's carbon sequestration" },
-            { icon: "🌬️", label: "O₂ Released", value: "36.1g", sub: "Oxygen produced today" },
-            { icon: "🧬", label: "Biomass Density", value: "2.4 g/L", sub: "Growing at +2.1%/hr" },
+            { icon: "🫧", label: "CO₂ Captured", value: `${d.co2}g`, sub: "Today's carbon sequestration" },
+            { icon: "🌬️", label: "O₂ Released", value: `${d.o2}g`, sub: "Oxygen produced today" },
+            { icon: "🧬", label: "Biomass Density", value: `${d.biomass} g/L`, sub: `Growing at +${d.growth}%/hr` },
           ].map((item, i) => (
             <motion.div
               key={item.label}
@@ -267,10 +350,10 @@ export default function TalkPage() {
           transition={{ delay: 0.3, duration: 0.5 }}
         >
           {[
-            { icon: "🧪", label: "pH Level", value: "6.96", sub: "Optimal range 6.8 – 7.2" },
-            { icon: "🌡️", label: "Temperature", value: "28.6°C", sub: "Maintained at 25 – 30°C" },
-            { icon: "💧", label: "Dissolved O₂", value: "7.2 mg/L", sub: "Healthy dissolved oxygen" },
-            { icon: "⚡", label: "Efficiency", value: "98%", sub: "System operating at peak" },
+            { icon: "🧪", label: "pH Level", value: `${d.ph}`, sub: "Optimal range 6.8 – 7.2" },
+            { icon: "🌡️", label: "Temperature", value: `${d.temp}°C`, sub: "Maintained at 25 – 30°C" },
+            { icon: "💧", label: "Dissolved O₂", value: `${d.do2} mg/L`, sub: "Healthy dissolved oxygen" },
+            { icon: "⚡", label: "Efficiency", value: `${d.efficiency}%`, sub: "System operating at peak" },
           ].map((item, i) => (
             <motion.div
               key={item.label}

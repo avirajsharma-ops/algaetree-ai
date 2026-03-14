@@ -1,0 +1,13 @@
+{
+  "name": "algaetree-kiosk",
+  "version": "1.0.0",
+  "description": "AlgaeTree AI Fullscreen Kiosk for Raspberry Pi",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "start:dev": "ALGAETREE_URL=http://localhost:3000 electron ."
+  },
+  "dependencies": {
+    "electron": "^33.0.0"
+  }
+}

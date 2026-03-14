@@ -1,5 +1,8 @@
-const CACHE_NAME = "algaetree-v1";
+const CACHE_NAME = "algaetree-v2";
 const PRECACHE_URLS = ["/", "/talk"];
+
+// Files that should never be cached by the SW
+const NO_CACHE_PATTERNS = [/\.glb/, /\.gltf/, /avatar/];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -19,6 +22,13 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
+
+  const url = new URL(event.request.url);
+
+  // Never cache large assets or API calls
+  if (NO_CACHE_PATTERNS.some((p) => p.test(url.pathname))) return;
+  if (url.hostname !== self.location.hostname) return;
+
   event.respondWith(
     fetch(event.request)
       .then((response) => {

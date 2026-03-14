@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { useLiveData } from "./hooks/useLiveData";
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -13,28 +14,6 @@ const rise = {
   hidden: { opacity: 0, y: 20 },
   show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" as const } },
 };
-
-function useLiveData() {
-  const [d, setD] = useState({
-    ph: 6.96, temp: 28.6, do2: 7.2, biomass: 2.4,
-    efficiency: 98, volume: 450, cycle: 14, maint: 28,
-    co2: 48.2, o2: 36.1, air: 2848, uptime: "14d 14h 50m", growth: 2.1,
-  });
-  useEffect(() => {
-    const id = setInterval(() => setD(p => ({
-      ...p,
-      ph: +(p.ph + (Math.random() - 0.5) * 0.02).toFixed(2),
-      temp: +(p.temp + (Math.random() - 0.5) * 0.1).toFixed(1),
-      do2: +(p.do2 + (Math.random() - 0.5) * 0.1).toFixed(1),
-      biomass: +(p.biomass + (Math.random() - 0.5) * 0.05).toFixed(1),
-      co2: +(p.co2 + Math.random() * 0.05).toFixed(1),
-      o2: +(p.o2 + Math.random() * 0.03).toFixed(1),
-      air: Math.round(p.air + Math.random() * 2),
-    })), 3000);
-    return () => clearInterval(id);
-  }, []);
-  return d;
-}
 
 function Bar({ pct, color }: { pct: number; color: string }) {
   return (

@@ -5,8 +5,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 
-const AVATAR_URL =
-  "https://models.readyplayer.me/64bfa15f0e72c63d7c3934a6.glb?morphTargets=ARKit,Oculus+Visemes&quality=high&textureAtlas=1024";
+const AVATAR_URL = "/avatar.glb?v=2";
 
 /* ── Error boundary ── */
 class AvatarErrorBoundary extends Component<
@@ -250,7 +249,7 @@ function AvatarModel({ isSpeaking }: { isSpeaking: boolean }) {
     // Subtle idle head sway
     if (headBone.current) {
       headBone.current.rotation.y = Math.sin(t * 0.3) * 0.04;
-      headBone.current.rotation.x = Math.sin(t * 0.4 + 1) * 0.02;
+      headBone.current.rotation.x = -0.08 + Math.sin(t * 0.4 + 1) * 0.02;
       // Slight nod when speaking
       if (isSpeaking) {
         headBone.current.rotation.x += Math.sin(t * 1.8) * 0.012;
@@ -317,7 +316,7 @@ function AvatarModel({ isSpeaking }: { isSpeaking: boolean }) {
     });
   });
 
-  return <primitive object={scene} position={[0, -1.62, 0]} rotation={[-0.06, 0, 0]} />;
+  return <primitive object={scene} position={[0, -1.62, 0]} rotation={[-0.12, 0, 0]} />;
 }
 
 /* ── Loading placeholder ── */
