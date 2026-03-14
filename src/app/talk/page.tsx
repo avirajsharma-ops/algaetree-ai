@@ -256,7 +256,7 @@ export default function TalkPage() {
         {/* ── CENTER: Avatar + controls ── */}
         <div
           className="relative talk-center"
-          style={{ flex: 1, minWidth: 0, minHeight: 0, position: "relative", overflow: "hidden" }}
+          style={{ flex: 1, minWidth: 0, minHeight: 0, position: "relative", overflow: "hidden", alignSelf: "stretch" }}
         >
           {/* Avatar container — fills entire area, touches bottom */}
           <div

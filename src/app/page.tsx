@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -96,6 +96,7 @@ export default function DashboardPage() {
   const d = useLiveData();
   const router = useRouter();
   const [time, setTime] = useState("");
+  const [navigating, setNavigating] = useState(false);
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -112,6 +113,36 @@ export default function DashboardPage() {
         <div className="orb orb-2" />
         <div className="orb orb-3" />
       </div>
+
+      {/* Fullscreen loading overlay */}
+      {navigating && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 100,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 20,
+            background: "var(--bg)",
+            backdropFilter: "blur(20px)",
+          }}
+        >
+          <div style={{ position: "relative", width: 60, height: 60 }}>
+            <svg width="60" height="60" viewBox="0 0 60 60" style={{ animation: "spin 1.2s linear infinite" }}>
+              <circle cx="30" cy="30" r="26" fill="none" stroke="rgba(34,197,94,0.15)" strokeWidth="4" />
+              <path d="M30 4a26 26 0 0 1 26 26" fill="none" stroke="#22c55e" strokeWidth="4" strokeLinecap="round" />
+            </svg>
+            <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24 }}>🌿</span>
+          </div>
+          <p className="font-semibold" style={{ fontSize: 16, color: "var(--text-2)" }}>Loading AlgaeTree AI...</p>
+          <p style={{ fontSize: 13, color: "var(--text-3)" }}>Preparing your conversation</p>
+        </motion.div>
+      )}
 
       {/* ────── NAVBAR ────── */}
       <motion.nav
@@ -215,26 +246,42 @@ export default function DashboardPage() {
 
           {/* CTA */}
           <motion.button
-            onClick={() => router.push("/talk")}
+            onClick={() => { setNavigating(true); router.push("/talk"); }}
+            disabled={navigating}
             className="glow-btn flex items-center justify-center cursor-pointer"
             style={{
               gap: 10,
               marginTop: 20,
               padding: "16px 0",
               borderRadius: 16,
-              background: "linear-gradient(135deg, #16a34a, #22c55e)",
+              background: navigating
+                ? "linear-gradient(135deg, #15803d, #16a34a)"
+                : "linear-gradient(135deg, #16a34a, #22c55e)",
               color: "#fff",
               fontWeight: 700,
               fontSize: 15,
               border: "none",
               boxShadow: "0 8px 30px rgba(34,197,94,0.3)",
+              opacity: navigating ? 0.85 : 1,
             }}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.97 }}
+            whileHover={navigating ? {} : { scale: 1.02 }}
+            whileTap={navigating ? {} : { scale: 0.97 }}
           >
-            <span style={{ fontSize: 20 }}>🌿</span>
-            <span>Talk to the Tree</span>
-            <span className="pulse-dot rounded-full" style={{ width: 8, height: 8, background: "#fff" }} />
+            {navigating ? (
+              <>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ animation: "spin 1s linear infinite" }}>
+                  <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" strokeWidth="3" />
+                  <path d="M12 2a10 10 0 0 1 10 10" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
+                </svg>
+                <span>Loading…</span>
+              </>
+            ) : (
+              <>
+                <span style={{ fontSize: 20 }}>🌿</span>
+                <span>Talk to the Tree</span>
+                <span className="pulse-dot rounded-full" style={{ width: 8, height: 8, background: "#fff" }} />
+              </>
+            )}
           </motion.button>
 
           {/* Mini stats */}
